@@ -1,0 +1,5 @@
+// all the url that points to the nodejs backend API
+
+final url = 'http://192.168.1.23:3000/';
+final registration = url + "register";
+final login = url + 'login';

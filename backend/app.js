@@ -5,13 +5,6 @@ const db = require('./config/database');
 const bodyParser = require("body-parser")
 const UserRoute = require("./routes/userRoutes");
 
-app.get('/', (req,res)=>{
-
-    res.send("Hello World");
-})
-
-
-
 app.use(bodyParser.json())
 app.use("/",UserRoute);
 

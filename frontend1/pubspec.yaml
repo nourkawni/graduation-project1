@@ -1,4 +1,4 @@
-name: flutterproject
+name: frontend1
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -30,8 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_secure_storage: ^5.0.2 # For storing tokens securely
-  http: ^0.13.3 # For making HTTP requests
+  velocity_x:
+  http:
+  shared_preferences:
+  jwt_decoder:
+  flutter_slidable:
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -61,9 +64,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - lib/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
