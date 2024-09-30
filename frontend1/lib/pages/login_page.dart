@@ -3,40 +3,96 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config.dart';
 import 'signup_page.dart';
+import 'forgetpassword_page.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
  _LoginState createState() => _LoginState();
 
 }
 class _LoginState extends State<LoginPage>{
   TextEditingController emailController = TextEditingController();
+  
   TextEditingController passwordController = TextEditingController();
   bool _isNotValidate = false;
+  bool _isLoading = false;
 
-   void SignUserIn() async{
-    if(emailController.text.isNotEmpty && passwordController.text.isNotEmpty){
-      var regBody = {
-        "email":emailController.text,
-        "password":passwordController.text
-      };
-      var response = await http.post(Uri.parse(login),
-      headers: {"Content-Type":"application/json"},
-      body: jsonEncode(regBody)
+ void signUserIn() async {
+  print("Sign in button pressed");
+
+  // Check if email and password are filled
+  if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+    print("Email and password are filled");
+
+    setState(() {
+      _isLoading = true;  // Show loading indicator
+    });
+
+    var regBody = {
+      "email": emailController.text,
+      "password": passwordController.text
+    };
+
+    try {
+      print("Sending request to server...");
+      var response = await http.post(
+        Uri.parse('http://192.168.1.23:3000/login'),  // Replace with your server URL
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(regBody),
       );
+
+      print("Received response from server");
+      print("Response status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
       var jsonResponse = jsonDecode(response.body);
-      print(jsonResponse['status']);
-      if(jsonResponse['status']){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>SignInPage()));
-      }else{
-        print("SomeThing Went Wrong");
+      if (jsonResponse['status'] == true) {
+        print("Login successful");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SignInPage()),
+        );
+      } else {
+        print("Login failed: ${jsonResponse['message']}");
+        
+        // Display a specific error message based on the server's response
+        String errorMessage;
+        if (jsonResponse['message'].toLowerCase().contains('invalid credentials') || 
+            jsonResponse['message'].toLowerCase().contains('wrong email')) {
+          errorMessage = 'Wrong email or password';
+        } else {
+          errorMessage = jsonResponse['message']; // Use the message from the server
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage, style: TextStyle(color: Colors.red))),
+        );
       }
-    }else{
+    } catch (e) {
+      print("Error occurred: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred. Please try again.', style: TextStyle(color: Colors.red))),
+      );
+    } finally {
       setState(() {
-        _isNotValidate = true;
+        _isLoading = false;  // Stop loading indicator
       });
     }
+  } else {
+    print("Email or password is empty");
+    setState(() {
+      _isNotValidate = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please fill in both email and password', style: TextStyle(color: Colors.red))),
+    );
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +131,8 @@ class _LoginState extends State<LoginPage>{
          child: TextField(
             controller: emailController,
             decoration: const InputDecoration(
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.blue),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.blue),
@@ -98,8 +154,8 @@ class _LoginState extends State<LoginPage>{
             obscureText: true,
             controller: passwordController,
             decoration: const InputDecoration(
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.blue),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.blue),
@@ -114,29 +170,39 @@ class _LoginState extends State<LoginPage>{
           )
         ),
         //forget password
-        const SizedBox(height: 10),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 25.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            
-            children: [
-              Text(
-          'Forgot Password?',
-          style: TextStyle(color: Color.fromARGB(255, 179, 179, 179)),
-        ),
+          SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    // Navigate to the Forget Password page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ForgotPasswordPage()), // Replace with your actual ForgetPasswordPage class
+                    );
+                  },
+                  child: const Text(
+                    'Forgot Password?',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 179, 179, 179),
+                       // Optional: Add underline to indicate it's clickable
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
-
-          ],)
-        ),
-
+     
   
         //sign in button
         const SizedBox(height: 25),
         GestureDetector(
-           onTap: ()=>{
-                        SignUserIn()
-                      },
+           onTap: signUserIn,
+                   
         child: Container(
           padding: const EdgeInsets.all(25),
           margin: const EdgeInsets.symmetric(horizontal: 25),
@@ -175,7 +241,7 @@ class _LoginState extends State<LoginPage>{
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white),
                 borderRadius: BorderRadius.circular(16),
@@ -187,7 +253,7 @@ class _LoginState extends State<LoginPage>{
             const SizedBox(width:  25),
 
             Container(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white),
                 borderRadius: BorderRadius.circular(16),
@@ -199,20 +265,29 @@ class _LoginState extends State<LoginPage>{
           ],),
 
         //not memeber regerster now 
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Not a Member?"),
-            SizedBox(width: 4),
-            Text(
-              'Register now',
-              style: TextStyle(
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
+        Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Not a Member?"),
+              const SizedBox(width: 4),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignInPage()), // Replace SignUpPage with your sign-up page widget
+                  );
+                },
+                child: const Text(
+                  'Register now',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            )
-          ],
-        )
+            ],
+          )
+
   
 
 

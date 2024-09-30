@@ -2,4 +2,4 @@
 
 const url = 'http://192.168.1.23:3000/';
 final registration = "${url}register";
-final login = '${url}login';
+final login = 'http://192.168.1.23:3000/login';

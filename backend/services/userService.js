@@ -30,4 +30,38 @@ class UserServices{
         return jwt.sign(tokenData, JWTSecret_Key, { expiresIn: JWT_EXPIRE });
     }
 }
+
+const crypto = require('crypto');
+
+exports.generatePasswordResetToken = () => {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+  
+  return { resetToken, resetTokenHash };
+};
+
+const nodemailer = require('nodemailer');
+
+/////////////////////////////////Need to create company email 
+exports.sendResetEmail = async (email, resetLink) => {
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'your-email@gmail.com',
+      pass: 'your-email-password'
+    }
+  });
+
+  const mailOptions = {
+    from: 'your-email@gmail.com',
+    to: email,
+    subject: 'Password Reset',
+    html: `<p>You requested a password reset</p>
+           <p>Click this <a href="${resetLink}">link</a> to reset your password.</p>`
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+
 module.exports = UserServices;

@@ -9,6 +9,6 @@ app.use(bodyParser.json())
 app.use("/",UserRoute);
 
 
-app.listen(3000, ()=>{
-    console.log('server Listening on Port 3000');
-});
+app.listen(3000, '0.0.0.0', () => {
+    console.log('Server is running on port 3000');
+  });
