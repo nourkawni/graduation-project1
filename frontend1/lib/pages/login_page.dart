@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend1/pages/home_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config.dart';
@@ -52,7 +53,7 @@ class _LoginState extends State<LoginPage>{
         print("Login successful");
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => SignInPage()),
+          MaterialPageRoute(builder: (context) => const HomePage()),
         );
       } else {
         print("Login failed: ${jsonResponse['message']}");

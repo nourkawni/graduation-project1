@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   velocity_x:
-  http:
+  http: ^1.2.2
   shared_preferences:
   jwt_decoder:
   flutter_slidable:
