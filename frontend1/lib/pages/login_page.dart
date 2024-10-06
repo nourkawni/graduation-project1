@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend1/pages/home_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../config.dart';
 import 'signup_page.dart';
 import 'forgetpassword_page.dart';
-
+import 'package:frontend1/pages/DashBoard.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -39,7 +41,7 @@ class _LoginState extends State<LoginPage>{
     try {
       print("Sending request to server...");
       var response = await http.post(
-        Uri.parse('http://192.168.1.23:3000/login'),  // Replace with your server URL
+        Uri.parse('http://192.168.1.94:3000/login'),  // Replace with your server URL
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(regBody),
       );
@@ -51,9 +53,15 @@ class _LoginState extends State<LoginPage>{
       var jsonResponse = jsonDecode(response.body);
       if (jsonResponse['status'] == true) {
         print("Login successful");
+       String token = jsonResponse['token'];
+         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+        String retrievedEmail = decodedToken['email'];
+        print('Email from token: $retrievedEmail');
+         SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          MaterialPageRoute(builder: (context) =>  MyPage()),
         );
       } else {
         print("Login failed: ${jsonResponse['message']}");

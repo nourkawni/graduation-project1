@@ -50,7 +50,7 @@ class _SignInPageState extends State<SignInPage> {
     try {
       print("Sending request to server...");
       var response = await http.post(
-        Uri.parse('http://192.168.1.23:3000/register'),
+        Uri.parse('http://192.168.1.94:3000/register'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(regBody),
       );

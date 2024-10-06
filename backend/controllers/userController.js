@@ -1,6 +1,7 @@
 // userController.js
 
 const UserServices = require('../services/userService');
+const UserModel=require('../models/userModel');
 
 // Register
 exports.register = async (req, res, next) => {
@@ -50,6 +51,7 @@ exports.login = async (req, res, next) => {
         // Create token
         const tokenData = { _id: user._id, email: user.email };
         const token = await UserServices.generateAccessToken(tokenData, "secret", "1h");
+       // localStorage.setItem('token', token);
 
         // Return success with token
         return res.status(200).json({ status: true, success: 'Login successful', token: token });
@@ -115,5 +117,28 @@ exports.forgotPassword = async (req, res, next) => {
       console.log(err);
       next(err);
     }
+  };
+  exports.pushNote= async (req, res) => {
+      const { userId } = req.params; // Extract user ID from the URL parameters
+      const { noteId } = req.body; // Extract note ID from the request body
+  console.log(userId);
+      try {
+          // Find the user by ID and push the note ID into their notes array
+          const updatedUser = await UserModel.findByIdAndUpdate(
+              userId,
+              { $push: { notes: noteId } },
+              { new: true } // Optionally return the updated user
+          );
+  
+          // Check if the user was found and updated
+          if (!updatedUser) {
+              return res.status(404).json({ message: 'User not found' });
+          }
+  
+          res.status(200).json({ message: 'Note added to user successfully', user: updatedUser });
+      } catch (error) {
+          console.error(error);
+          res.status(500).json({ message: 'Error adding note to user', error });
+      }
   };
   

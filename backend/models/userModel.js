@@ -19,6 +19,11 @@ const userSchema = new Schema({
         type: String,
         required: [true, "password is required"],
     },
+    notes: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Note', // Refers to the 'Note' collection
+    }]
+
 },{timestamps:true});
 // used while encrypting user entered password
 userSchema.pre("save",async function(){
